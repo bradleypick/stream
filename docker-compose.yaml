@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  funnel:
+    build:
+      context: ./funnel
+    ports: 
+      - 6001:6001
+    volumes:
+    - .:/workspace:cached
+    environment:
+       TWITTER_API_KEY: ${TWITTER_API_KEY}
+       TWITTER_API_SECRET: ${TWITTER_API_SECRET}
+       TWITTER_ACCESS_TOKEN: ${TWITTER_ACCESS_TOKEN}
+       TWITTER_ACCESS_SECRET: ${TWITTER_ACCESS_SECRET}
+       PYTHONUNBUFFERED: 1
+    command: /bin/sh -c "while sleep 1000; do :; done"

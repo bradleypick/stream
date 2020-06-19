@@ -1,0 +1,9 @@
+{
+    // "dockerFile": "../funnel/Dockerfile",
+    "dockerComposeFile": "../docker-compose.yaml",
+    "service": "funnel",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [5000, 6001],
+    "extensions": ["ms-python.python"]
+}
+  
