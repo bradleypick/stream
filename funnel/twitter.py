@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import json
 import tweepy
 import argparse
 
@@ -12,8 +13,10 @@ CONSUMER_SECRET = os.environ['TWITTER_API_SECRET']
 class StreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
-        print(status.text)
-        
+        with open('data/test.json', 'a', encoding='utf-8') as f:
+            json.dump(status._json, f, ensure_ascii=False, indent=4)
+            f.write('\n')
+                
     def on_error(self, status_code):
         if status_code == 420:
             return False
