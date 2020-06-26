@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import csv
 import json
 import tweepy
 import argparse
@@ -12,10 +13,37 @@ CONSUMER_SECRET = os.environ['TWITTER_API_SECRET']
 
 class StreamListener(tweepy.StreamListener):
 
+    def __init__(self, outfile, api=None):
+        super().__init__(api)
+        self.outfile = outfile
+        with open(outfile, 'w', newline='') as f:
+            writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(['time_created',
+                            'time_created_orig',
+                            'screen_name',
+                            'verified',
+                            'retweet',
+                            'text'])
+
     def on_status(self, status):
-        with open('data/test.json', 'a', encoding='utf-8') as f:
-            json.dump(status._json, f, ensure_ascii=False, indent=4)
-            f.write('\n')
+        with open(self.outfile, 'a', newline='') as f:
+            writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            data = status._json
+            if not hasattr(status, 'retweeted_status'):
+                writer.writerow([data['created_at'],
+                                data['created_at'],
+                                data['user']['screen_name'],
+                                data['user']['verified'],
+                                False,
+                                data['text']])
+            else:
+                writer.writerow([data['created_at'],
+                                data['retweeted_status']['created_at'],
+                                data['retweeted_status']['user']['screen_name'],
+                                data['retweeted_status']['user']['verified'],
+                                True,
+                                data['retweeted_status']['text']])
+                
                 
     def on_error(self, status_code):
         if status_code == 420:
@@ -32,7 +60,7 @@ if __name__ == '__main__':
 
     api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True, compression=True)
 
-    stream_listener = StreamListener()
+    stream_listener = StreamListener(outfile='data/test.csv')
     stream = tweepy.Stream(auth=api.auth, listener=stream_listener)
     stream.filter(track=args.track, languages=['en'])
 
